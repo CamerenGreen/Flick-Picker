@@ -2,7 +2,6 @@
 #include <iostream>
 
 int main() {
-    // Example usage
     HybridRecommender recommender("API-KEY-GOES-HERE");
 
     // Load or create your User and Item data
