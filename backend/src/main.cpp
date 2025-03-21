@@ -3,7 +3,7 @@
 
 int main() {
     // Example usage
-    HybridRecommender recommender("bba50e797d1bf6bfb889797b7d4fe73a");
+    HybridRecommender recommender("API-KEY-GOES-HERE");
 
     // Load or create your User and Item data
     std::vector<User> users;
