@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+.venv/
+ENV/
+build/
+dist/
+pip-wheel-metadata/
+*.egg-info/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Byte-compiled / logs
+*.log
+.pytest_cache/
+
+# Environment / secrets
+.env
+.env.*
+secrets.env
+
+# Database
+*.sqlite3
+*.db
+
+# Node
+node_modules/
+frontend/extension/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts from extension bundling
+frontend/extension/dist/
+popup.bundle.js
+options.bundle.js
+
+# Local run artifacts and scripts outputs
+sync_results.txt
+run_sync_6_20.py
+run_sync_cmd.bat
+run_sync_pages_6_20.ps1
+
+# Docker / Compose
+**/pgdata/
+/*.env
