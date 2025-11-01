@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Flick Picker Options</title>
+    <style>body{font-family:Arial;padding:12px;max-width:720px}label{display:block;margin-top:8px}</style>
+  </head>
+  <body>
+    <h2>Flick Picker — Options</h2>
+    <label>Backend URL
+      <input id="backendUrl" style="width:100%" placeholder="http://localhost:8000">
+    </label>
+    <label>Persisted User (ID)
+      <input id="persistedUserId" style="width:100%" placeholder="User ID to auto-select">
+    </label>
+    <div style="margin-top:10px">
+      <button id="save">Save</button>
+      <button id="clear">Clear</button>
+    </div>
+    <div id="status" style="margin-top:12px;color:green"></div>
+    <script src="options.bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "flick-picker-extension",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/popup.tsx --bundle --outfile=popup.bundle.js --minify --sourcemap && esbuild src/options.tsx --bundle --outfile=options.bundle.js --minify --sourcemap",
+    "watch": "esbuild src/popup.tsx --bundle --outfile=popup.bundle.js --sourcemap --watch & esbuild src/options.tsx --bundle --outfile=options.bundle.js --sourcemap --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.0.149"
+  },
+  "dependencies": {
+    "preact": "^10.13.2"
+  }
+}

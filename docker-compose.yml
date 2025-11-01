@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-flick}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flickpass}
+      POSTGRES_DB: ${POSTGRES_DB:-flickdb}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - '8000:8000'
+    environment:
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-flick}:${POSTGRES_PASSWORD:-flickpass}@db:5432/${POSTGRES_DB:-flickdb}
+      - STORAGE_DIR=/app/backend/app/storage
+    volumes:
+      - ./backend/storage:/app/backend/app/storage
+
+volumes:
+  pgdata:
