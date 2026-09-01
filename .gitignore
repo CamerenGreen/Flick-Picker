@@ -11,7 +11,7 @@ build/
 dist/
 pip-wheel-metadata/
 *.egg-info/
-.
+
 # Editor / OS
 .vscode/
 .idea/
