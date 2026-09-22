@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Flick Picker",
+  "version": "1.0.0",
+  "description": "Personal movie and show recommendations from your locally trained model.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Flick Picker"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": ["http://localhost:8000/*", "http://127.0.0.1:8000/*", "https://image.tmdb.org/*"]
+}
