@@ -1,0 +1,10 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      TMDB_API_KEY: ${TMDB_API_KEY:-}
+      DATA_DIR: /app/backend/storage
+    volumes:
+      - ./backend/storage:/app/backend/storage

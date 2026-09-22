@@ -1,61 +1,32 @@
 # Flick Picker
 
+A full stack movie and show recommender with a Chrome extension, a Python API, SQLite history, and a **locally trained recommendation model**. The model is implemented in this repository. It learns a weighted TF-IDF vocabulary from the catalog and ranks unseen titles against a profile built from a user's watched titles and optional 1–5 ratings. It retrains when new titles enter the catalog. No hosted model or recommender API is used.
 
-**Flick Picker** is a hybrid movie recommendation system that combines **Collaborative Filtering** and **Content-Based Filtering** to provide personalized movie recommendations based on a user's viewing history. The system uses the **TMDB API** to fetch movie details and leverages machine learning models implemented in **PyTorch** for recommendations.
+The bundled 28-title movie and show catalog works without credentials. For a larger searchable catalog, add a [TMDB API key](https://developer.themoviedb.org/docs/getting-started) as `TMDB_API_KEY` on the backend, then use **Sync movies** and **Sync shows** in Settings to add recommendation candidates. The key is never put in the extension. TMDB search results are also imported when a user watches one. IMDb is not used because this implementation uses TMDB's documented API.
 
----
+## Run locally
 
-## Table of Contents
+Use Python 3.12 or newer:
 
-1. [Features](#features)
-2. [Technologies Used](#technologies-used)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Project Structure](#project-structure)
-6. [Contributing](#contributing)
-7. [License](#license)
+```powershell
+python -m venv .venv
+.venv\Scripts\python -m pip install -r backend\requirements.txt
+.venv\Scripts\python -m uvicorn backend.app.main:app --reload --port 8000
+```
 
----
+Open the [browser demo](http://127.0.0.1:8000). Click **Try a ready-made demo** to create a local profile with *The Matrix* watched, then see recommendations immediately. You can also create your own profile, search titles, and mark movies and shows as watched.
 
-## Features
+To load the Chrome extension, open `chrome://extensions`, enable Developer mode, click **Load unpacked**, and select `frontend/extension`. The extension is plain JavaScript; no Node build step is needed. Keep the backend running at `http://127.0.0.1:8000`. The Settings page allows another backend URL, but additional origins require matching Chrome host permissions in `manifest.json`.
 
-- **Hybrid Recommendation Engine**: Combines Collaborative Filtering and Content-Based Filtering for accurate recommendations.
-- **TMDB API Integration**: Fetches movie details such as title, genres, and ratings.
-- **Machine Learning Models**: Uses PyTorch for implementing Collaborative Filtering and Content-Based Filtering.
-- **Chrome Extension**: Provides a user-friendly interface for movie recommendations.
-- **Cross-Platform**: Works on Windows, macOS, and Linux.
+Docker is also supported with `docker compose up --build`. Set `TMDB_API_KEY` in `.env` first if you want live TMDB search.
 
----
+## API and model
 
-## Technologies Used
+- `GET /catalog?media_type=movie|tv|all` and `GET /search?q=...` list local titles and optionally search TMDB.
+- `POST /users`, `POST /users/{id}/history`, `GET /users/{id}/history` save and retrieve a profile. Add history using `media_id`, or `source="tmdb"`, `source_id`, and `media_type` for a TMDB result.
+- `GET /users/{id}/recommend` returns ranked unseen titles and short explanations.
+- `POST /tmdb/sync_popular?media_type=movie|tv` imports popular titles; `POST /train` explicitly retrains; `GET /model/status` shows the trained catalog size.
 
-- **Backend**:
-  - C++ (for core logic)
-  - PyTorch (for machine learning models)
-  - libcurl (for HTTP requests)
-  - jsoncpp (for JSON parsing)
-- **Frontend**:
-  - Chrome Extension (HTML, CSS, JavaScript)
-- **APIs**:
-  - TMDB API (for movie data)
-- **Build Tools**:
-  - CMake (for building the C++ project)
-  - pybind11 (for Python-C++ integration)
+The model file and SQLite database live in `backend/storage/`. The starter catalog is intended for demonstration; recommendation quality grows with a larger, richer catalog. Viewing history is entered by the user; the extension does not monitor streaming sites.
 
----
-
-## Installation
-
-### Prerequisites
-
-- **C++ Compiler**: Ensure you have a C++ compiler installed (e.g., MSVC, GCC, or Clang).
-- **Python 3.8+**: Required for PyTorch and pybind11.
-- **CMake**: Required for building the project.
-- **TMDB API Key**: Get your API key from [TMDB](https://www.themoviedb.org/settings/api).
-
-### Steps
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/CamerenGreen/Flick-Picker.git
-   cd Flick-Picker
+Run tests with `.venv\Scripts\python -m pytest backend/tests -q`.
