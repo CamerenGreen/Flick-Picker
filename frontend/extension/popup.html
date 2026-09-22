@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flick Picker</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main class="app">
+    <header class="masthead">
+      <div class="brand">Flick Picker</div>
+      <a class="settings" href="options.html">Settings</a>
+    </header>
+    <section class="intro">
+      <h1>Find your next watch.</h1>
+      <p>Save the movies and shows you’ve seen to get recommendations that fit your taste.</p>
+    </section>
+    <section class="profile-panel" id="profilePanel">
+      <div id="profileCreate">
+        <label for="nameInput">Create a profile</label>
+        <div class="input-row"><input id="nameInput" placeholder="Enter your name" maxlength="60"><button id="createUser" class="primary">Continue</button></div>
+        <button id="demoButton" class="text-button">Use sample profile</button>
+      </div>
+      <div id="profileActive" hidden><span class="avatar" id="avatar">A</span><div><small>Current profile</small><strong id="profileName"></strong></div><button id="switchUser" class="text-button">Switch</button></div>
+    </section>
+    <nav class="tabs" aria-label="Sections"><button class="tab active" data-tab="discover">Discover</button><button class="tab" data-tab="for-you">For you</button><button class="tab" data-tab="watched">Watched</button></nav>
+    <section id="discover" class="tab-panel">
+      <div class="section-heading"><h2>Browse titles</h2><span class="counter" id="catalogCount"></span></div>
+      <div class="search-row"><input id="searchInput" placeholder="Search by title" aria-label="Search titles"><button id="searchButton" class="secondary">Search</button></div>
+      <div class="filter-row"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="movie">Movies</button><button class="filter" data-filter="tv">Shows</button></div>
+      <div id="catalogList" class="media-list"></div>
+    </section>
+    <section id="for-you" class="tab-panel" hidden><div class="section-heading"><h2>Recommended for you</h2></div><p class="section-note">Based on the titles you’ve marked as watched.</p><div id="recommendList" class="media-list"></div></section>
+    <section id="watched" class="tab-panel" hidden><div class="section-heading"><h2>Watch history</h2></div><div id="watchedList" class="media-list"></div></section>
+    <div id="message" role="status" aria-live="polite"></div>
+    <footer><span class="footer-label">Local recommendations</span><span id="modelLabel">Loading catalog…</span></footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
