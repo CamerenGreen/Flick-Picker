@@ -16,15 +16,9 @@
       <div class="section-heading"><h2>Settings</h2></div>
       <p class="section-note">Connect the extension to the Flick Picker server.</p>
       <label for="backendUrl">Backend URL</label>
-      <input class="option-input" id="backendUrl" placeholder="http://127.0.0.1:8000">
+      <input class="option-input" id="backendUrl" placeholder="https://flick-picker-api-camerengreen.onrender.com">
       <button class="primary" id="save">Save</button>
       <p id="status" role="status"></p>
-      <div class="settings-section">
-        <h3>Catalog</h3>
-        <p class="section-note">If a TMDB key is configured on the server, add popular titles to the catalog.</p>
-        <div class="button-row"><button class="secondary" id="syncMovies">Add movies</button><button class="secondary" id="syncShows">Add shows</button></div>
-        <p id="syncStatus" role="status"></p>
-      </div>
     </section>
   </main>
   <script src="options.js"></script>

@@ -7,7 +7,9 @@ let backend = '', user = null, filter = 'all', query = '', catalog = [], history
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
 async function api(path, options) {
-  const response = await fetch(backend + path, options);
+  const request = {...(options || {}), headers: {...(options?.headers || {})}};
+  if (user?.token) request.headers.Authorization = `Bearer ${user.token}`;
+  const response = await fetch(backend + path, request);
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
     throw new Error(data.detail || `Server returned ${response.status}`);
@@ -94,11 +96,17 @@ async function demo() {
   } catch (error) { message(error.message); }
 }
 async function init() {
-  backend = await storage.get('backendUrl') || (location.protocol === 'http:' || location.protocol === 'https:' ? location.origin : 'http://127.0.0.1:8000');
+  backend = await storage.get('backendUrl') || (location.protocol === 'http:' || location.protocol === 'https:'
+    ? location.origin
+    : 'https://flick-picker-api-camerengreen.onrender.com');
   backend = backend.replace(/\/$/, '');
   user = await storage.get('currentUser');
   if (user) {
-    try { user = await api(`/users/${user.id}`); } catch { user = null; await storage.set('currentUser', null); }
+    try {
+      const saved = user;
+      const profileData = await api(`/users/${user.id}`);
+      user = {...profileData, token: saved.token};
+    } catch { user = null; await storage.set('currentUser', null); }
   }
   profile();
   document.querySelectorAll('.tab').forEach(button => button.onclick = () => showTab(button.dataset.tab));

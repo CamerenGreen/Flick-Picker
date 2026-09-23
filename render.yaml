@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: flick-picker-api-camerengreen
+    runtime: docker
+    plan: free
+    branch: main
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATA_DIR
+        value: /tmp/flick-picker
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: TMDB_API_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        generateValue: true

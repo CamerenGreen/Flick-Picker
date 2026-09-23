@@ -27,7 +27,8 @@ def init_db():
         connection.executescript("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            token_hash TEXT
         );
         CREATE TABLE IF NOT EXISTS media (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,3 +51,6 @@ def init_db():
             PRIMARY KEY (user_id, media_id)
         );
         """)
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(users)")}
+        if "token_hash" not in columns:
+            connection.execute("ALTER TABLE users ADD COLUMN token_hash TEXT")

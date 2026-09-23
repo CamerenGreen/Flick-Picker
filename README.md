@@ -20,6 +20,18 @@ To load the Chrome extension, open `chrome://extensions`, enable Developer mode,
 
 Docker is also supported with `docker compose up --build`. Set `TMDB_API_KEY` in `.env` first if you want live TMDB search.
 
+## Production deployment
+
+The repository includes a Render Blueprint in `render.yaml`. Deploy it from the repository's `main` branch, then verify `https://flick-picker-api-camerengreen.onrender.com/health`. The free service uses ephemeral SQLite storage, so demo profiles can reset when the service restarts or redeploys. Attach a persistent disk at `/var/data` and set `DATA_DIR=/var/data` for durable profiles.
+
+The production Chrome extension defaults to that Render API. Build the uploadable package with:
+
+```powershell
+.\scripts\package-extension.ps1
+```
+
+This writes `dist/flick-picker-extension.zip`. GitHub Actions also runs the tests and produces the same package on every push to `main`. Chrome Web Store publication requires a registered developer account, store listing details, and Google review.
+
 ## API and model
 
 - `GET /catalog?media_type=movie|tv|all` and `GET /search?q=...` list local titles and optionally search TMDB.

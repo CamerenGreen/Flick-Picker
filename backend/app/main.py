@@ -1,10 +1,13 @@
 """Flick Picker API and static extension demo."""
 import json
+import hashlib
+import os
+import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -46,9 +49,14 @@ def serialize(row):
     return item
 
 
-def require_user(connection, user_id):
-    if not connection.execute("SELECT 1 FROM users WHERE id=?", (user_id,)).fetchone():
+def require_user(connection, user_id, authorization):
+    user = connection.execute("SELECT token_hash FROM users WHERE id=?", (user_id,)).fetchone()
+    if not user:
         raise HTTPException(404, "User not found")
+    token = authorization.removeprefix("Bearer ").strip() if authorization else ""
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    if not token or not user["token_hash"] or not secrets.compare_digest(token_hash, user["token_hash"]):
+        raise HTTPException(401, "Invalid profile token")
 
 
 @app.get("/health")
@@ -92,23 +100,25 @@ def create_user(body: UserCreate):
     if not body.name.strip():
         raise HTTPException(422, "Name cannot be blank")
     with db.connect() as connection:
-        cursor = connection.execute("INSERT INTO users(name) VALUES (?)", (body.name.strip(),))
-        return {"id": cursor.lastrowid, "name": body.name.strip()}
+        token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        cursor = connection.execute("INSERT INTO users(name, token_hash) VALUES (?, ?)",
+                                    (body.name.strip(), token_hash))
+        return {"id": cursor.lastrowid, "name": body.name.strip(), "token": token}
 
 
 @app.get("/users/{user_id}")
-def get_user(user_id: int):
+def get_user(user_id: int, authorization: str | None = Header(default=None)):
     with db.connect() as connection:
+        require_user(connection, user_id, authorization)
         row = connection.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
-        if not row:
-            raise HTTPException(404, "User not found")
-        return dict(row)
+        return {"id": row["id"], "name": row["name"]}
 
 
 @app.get("/users/{user_id}/history")
-def get_history(user_id: int):
+def get_history(user_id: int, authorization: str | None = Header(default=None)):
     with db.connect() as connection:
-        require_user(connection, user_id)
+        require_user(connection, user_id, authorization)
         rows = connection.execute("""SELECT media.*, viewing_history.rating, viewing_history.watched_at
             FROM viewing_history JOIN media ON media.id=viewing_history.media_id
             WHERE user_id=? ORDER BY watched_at DESC, media.id DESC""", (user_id,)).fetchall()
@@ -116,9 +126,9 @@ def get_history(user_id: int):
 
 
 @app.post("/users/{user_id}/history", status_code=201)
-def add_history(user_id: int, body: ViewingCreate):
+def add_history(user_id: int, body: ViewingCreate, authorization: str | None = Header(default=None)):
     with db.connect() as connection:
-        require_user(connection, user_id)
+        require_user(connection, user_id, authorization)
         media_id = body.media_id
         if media_id is None:
             if body.source != "tmdb" or not body.source_id or not body.media_type:
@@ -152,9 +162,10 @@ def add_history(user_id: int, body: ViewingCreate):
 
 
 @app.get("/users/{user_id}/recommend")
-def recommend(user_id: int, top_k: int = Query(8, ge=1, le=50)):
+def recommend(user_id: int, top_k: int = Query(8, ge=1, le=50),
+              authorization: str | None = Header(default=None)):
     with db.connect() as connection:
-        require_user(connection, user_id)
+        require_user(connection, user_id, authorization)
         result = recommender.recommend_for_user(connection, user_id, top_k)
         return [{**serialize(item["media"]), "score": item["score"], "reason": item["reason"]}
                 for item in result]
@@ -169,7 +180,11 @@ def train():
 
 
 @app.post("/tmdb/sync_popular")
-def sync_popular(media_type: Literal["movie", "tv"] = "movie", page: int = Query(1, ge=1, le=50)):
+def sync_popular(media_type: Literal["movie", "tv"] = "movie", page: int = Query(1, ge=1, le=50),
+                 x_admin_token: str | None = Header(default=None)):
+    admin_token = os.environ.get("ADMIN_TOKEN")
+    if not admin_token or not x_admin_token or not secrets.compare_digest(admin_token, x_admin_token):
+        raise HTTPException(403, "Catalog sync is disabled or unauthorized")
     if not tmdb_client.enabled():
         raise HTTPException(400, "Configure TMDB_API_KEY on the backend first")
     try:

@@ -1,0 +1,33 @@
+name: Package Chrome extension
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Run API tests
+        run: pytest backend/tests -q
+      - name: Check extension JavaScript
+        run: |
+          node --check frontend/extension/popup.js
+          node --check frontend/extension/options.js
+      - name: Build extension package
+        shell: pwsh
+        run: ./scripts/package-extension.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flick-picker-extension
+          path: dist/flick-picker-extension.zip
