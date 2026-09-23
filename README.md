@@ -1,5 +1,7 @@
 # Flick Picker
 
+**Live deployment:** [Open Flick Picker](https://flick-picker-api-camerengreen.onrender.com) · [API health](https://flick-picker-api-camerengreen.onrender.com/health) · Hosted on Render from `main`
+
 A full stack movie and show recommender with a Chrome extension, a Python API, SQLite history, and a **locally trained recommendation model**. The model is implemented in this repository. It learns a weighted TF-IDF vocabulary from the catalog and ranks unseen titles against a profile built from a user's watched titles and optional 1–5 ratings. It retrains when new titles enter the catalog. No hosted model or recommender API is used.
 
 The bundled 28-title movie and show catalog works without credentials. For a larger searchable catalog, add a [TMDB API key](https://developer.themoviedb.org/docs/getting-started) as `TMDB_API_KEY` on the backend, then use **Sync movies** and **Sync shows** in Settings to add recommendation candidates. The key is never put in the extension. TMDB search results are also imported when a user watches one. IMDb is not used because this implementation uses TMDB's documented API.
@@ -22,7 +24,9 @@ Docker is also supported with `docker compose up --build`. Set `TMDB_API_KEY` in
 
 ## Production deployment
 
-The repository includes a Render Blueprint in `render.yaml`. Deploy it from the repository's `main` branch, then verify `https://flick-picker-api-camerengreen.onrender.com/health`. The free service uses ephemeral SQLite storage, so demo profiles can reset when the service restarts or redeploys. Attach a persistent disk at `/var/data` and set `DATA_DIR=/var/data` for durable profiles.
+Flick Picker is currently deployed live on Render at [flick-picker-api-camerengreen.onrender.com](https://flick-picker-api-camerengreen.onrender.com). Render builds the Docker service from the repository's `main` branch, checks `/health`, and automatically deploys new commits. The production backend has TMDB enabled for live movie and show search.
+
+The repository also includes the deployment configuration in `render.yaml`. The free service uses ephemeral SQLite storage, so demo profiles can reset when the service restarts or redeploys. Attach a persistent disk at `/var/data` and set `DATA_DIR=/var/data` for durable profiles.
 
 The production Chrome extension defaults to that Render API. Build the uploadable package with:
 
