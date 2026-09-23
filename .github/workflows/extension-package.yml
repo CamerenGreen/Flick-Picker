@@ -19,7 +19,7 @@ jobs:
       - name: Install test dependencies
         run: pip install -r backend/requirements.txt
       - name: Run API tests
-        run: pytest backend/tests -q
+        run: python -m pytest backend/tests -q
       - name: Check extension JavaScript
         run: |
           node --check frontend/extension/popup.js
